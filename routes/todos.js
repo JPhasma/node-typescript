@@ -7,9 +7,10 @@ router.get('/', (req, res, next) => {
     res.status(200).json({ todos: todos });
 });
 router.post('/todo', (req, res, next) => {
+    const body = req.body; // Type assertion
     const newTodo = {
         id: new Date().toISOString(),
-        text: req.body.text,
+        text: body.text,
     };
     todos.push(newTodo);
     res
@@ -17,10 +18,12 @@ router.post('/todo', (req, res, next) => {
         .json({ message: 'Created the todo.', createdTodo: newTodo, todos: todos });
 });
 router.put('/todo/:todoId', (req, res, next) => {
-    const tid = req.params.todoId;
+    const body = req.body; // Type assertion
+    const params = req.params; // Type assertion
+    const tid = params.todoId;
     const todoIndex = todos.findIndex((todo) => todo.id === tid);
     if (todoIndex >= 0) {
-        todos[todoIndex] = { id: todos[todoIndex].id, text: req.body.text };
+        todos[todoIndex] = { id: todos[todoIndex].id, text: body.text };
         return res.status(200).json({
             message: 'Updated!',
             updatedTodo: todos[todoIndex],
@@ -30,7 +33,8 @@ router.put('/todo/:todoId', (req, res, next) => {
     res.status(404).json({ message: 'Could not find todo for this id.' });
 });
 router.delete('/todo/:todoId', (req, res, next) => {
-    todos = todos.filter((todo) => todo.id !== req.params.todoId);
+    const params = req.params; // Type assertion
+    todos = todos.filter((todo) => todo.id !== params.todoId);
     res.status(200).json({ message: 'Todo deleted!', todos: todos });
 });
 exports.default = router;
