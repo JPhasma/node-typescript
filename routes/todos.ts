@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { Todo } from '../models/todo';
 
+type RequestBody = { text: string }; // Type alias
+type RequestParams = { todoId: string }; // Type alias
+
 let todos: Todo[] = [];
 const router = Router();
 
@@ -9,9 +12,10 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/todo', (req, res, next) => {
+  const body = req.body as RequestBody; // Type assertion
   const newTodo: Todo = {
     id: new Date().toISOString(),
-    text: req.body.text,
+    text: body.text,
   };
 
   todos.push(newTodo);
@@ -21,11 +25,14 @@ router.post('/todo', (req, res, next) => {
 });
 
 router.put('/todo/:todoId', (req, res, next) => {
-  const tid = req.params.todoId;
+  const body = req.body as RequestBody; // Type assertion
+  const params = req.params as RequestParams; // Type assertion
+
+  const tid = params.todoId;
   const todoIndex = todos.findIndex((todo) => todo.id === tid);
 
   if (todoIndex >= 0) {
-    todos[todoIndex] = { id: todos[todoIndex].id, text: req.body.text };
+    todos[todoIndex] = { id: todos[todoIndex].id, text: body.text };
     return res.status(200).json({
       message: 'Updated!',
       updatedTodo: todos[todoIndex],
@@ -36,7 +43,8 @@ router.put('/todo/:todoId', (req, res, next) => {
 });
 
 router.delete('/todo/:todoId', (req, res, next) => {
-  todos = todos.filter((todo) => todo.id !== req.params.todoId);
+  const params = req.params as RequestParams; // Type assertion
+  todos = todos.filter((todo) => todo.id !== params.todoId);
   res.status(200).json({ message: 'Todo deleted!', todos: todos });
 });
 
